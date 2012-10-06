@@ -47,15 +47,19 @@ import org.compass.gps.device.hibernate.lifecycle.HibernateMirrorFilter;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.engine.CollectionEntry;
-import org.hibernate.engine.EntityEntry;
-import org.hibernate.event.*;
+import org.hibernate.engine.spi.CollectionEntry;
+import org.hibernate.engine.spi.EntityEntry;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.event.spi.*;
 import org.hibernate.mapping.Component;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
 import org.hibernate.mapping.Value;
 import org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory;
 import org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory;
+import org.hibernate.integrator.spi.Integrator;
+import org.hibernate.metamodel.source.MetadataImplementor;
+import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 
 /**
  * An Hibernate event listener allowing to run Compass embedded within Hibernate. The embedded mode
@@ -127,7 +131,7 @@ import org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory;
  */
 public class CompassEventListener implements PostDeleteEventListener, PostInsertEventListener, PostUpdateEventListener,
         PostCollectionRecreateEventListener, PostCollectionRemoveEventListener, PostCollectionUpdateEventListener,
-        Initializable {
+        Integrator {
 
     public final static Log log = LogFactory.getLog(CompassEventListener.class);
 
@@ -147,9 +151,18 @@ public class CompassEventListener implements PostDeleteEventListener, PostInsert
 
     private boolean processCollections = true;
 
-    public void initialize(Configuration cfg) {
+    public void integrate(Configuration cfg, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry)  {
         compassHolder = getCompassHolder(cfg);
     }
+
+    public void integrate(MetadataImplementor metadata, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
 
     public Compass getCompass() {
         return this.compassHolder.compass;
