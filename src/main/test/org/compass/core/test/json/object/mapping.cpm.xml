@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE compass-core-mapping PUBLIC
+        "-//Compass/Compass Core Mapping DTD 2.3//EN"
+        "http://www.compass-project.org/dtd/compass-core-mapping-2.3.dtd">
+
+<compass-core-mapping>
+
+    <root-json-object alias="a">
+        <json-id name="id"/>
+        <json-property name="value"/>
+        <json-object name="obj">
+            <json-property name="objValue1" value-converter="int"/>
+            <json-array name="arr">
+                <json-property value-converter="int"/>
+            </json-array>
+        </json-object>
+    </root-json-object>
+
+    <root-json-object alias="b">
+        <json-id name="id"/>
+        <json-property name="value"/>
+        <json-object name="obj">
+            <json-property name="objValue1" value-converter="int"/>
+            <json-array name="arr">
+                <json-property value-converter="int"/>
+            </json-array>
+        </json-object>
+        <json-object name="obj">
+            <json-property name="objValue1" value-converter="int"/>
+            <json-array name="arr">
+                <json-property value-converter="int"/>
+            </json-array>
+        </json-object>
+    </root-json-object>
+
+    <root-json-object alias="c">
+        <json-id name="id"/>
+        <json-property name="value"/>
+        <json-object name="obj">
+            <json-property name="objValue1" value-converter="int" naming-type="full"/>
+            <json-array name="arr">
+                <json-property value-converter="int" naming-type="full"/>
+            </json-array>
+        </json-object>
+    </root-json-object>
+
+    <root-json-object alias="d">
+        <json-id name="id"/>
+        <json-object name="employee">
+            <json-property name="guid" naming-type="full"/>
+            <json-object name="address">
+                <json-property name="street" naming-type="full"/>
+            </json-object>
+        </json-object>
+        <json-content name="content"/>
+    </root-json-object>
+
+</compass-core-mapping>
+    
