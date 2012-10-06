@@ -27,7 +27,10 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.event.PostInsertEventListener;
+import org.hibernate.event.spi.PostInsertEventListener;
+import org.hibernate.event.service.spi.EventListenerGroup;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
 import org.hibernate.internal.SessionFactoryImpl;
 
 /**
@@ -108,7 +111,9 @@ public abstract class HibernateHelper {
 
     private static CompassEventListener findEventListener(SessionFactory sessionFactory) {
         if (sessionFactory instanceof SessionFactoryImpl) {
-            PostInsertEventListener[] listeners = ((SessionFactoryImpl) sessionFactory).getEventListeners().getPostInsertEventListeners();
+            final EventListenerRegistry eventRegistry =
+                    ((SessionFactoryImpl) sessionFactory).getServiceRegistry().getService(EventListenerRegistry.class);
+            EventListenerGroup<PostInsertEventListener> listeners = eventRegistry.getEventListenerGroup(EventType.POST_INSERT);
             return findEventListener(listeners);
         } else {
             Session session = sessionFactory.openSession();
@@ -121,12 +126,13 @@ public abstract class HibernateHelper {
     }
 
     private static CompassEventListener findEventListener(Session session) {
-        PostInsertEventListener[] listeners = ((SessionImplementor) session).getListeners().getPostInsertEventListeners();
+        EventListenerRegistry eventListenerRegistry = ((SessionImplementor) session).getFactory().getServiceRegistry().getService(EventListenerRegistry.class);
+        EventListenerGroup<PostInsertEventListener> listeners = eventListenerRegistry.getEventListenerGroup(EventType.POST_INSERT);
         return findEventListener(listeners);
     }
 
-    private static CompassEventListener findEventListener(PostInsertEventListener[] listeners) {
-        for (PostInsertEventListener candidate : listeners) {
+    private static CompassEventListener findEventListener(EventListenerGroup<PostInsertEventListener> listeners) {
+        for (PostInsertEventListener candidate : listeners.listeners()) {
             if (candidate instanceof CompassEventListener) {
                 return (CompassEventListener) candidate;
             }
