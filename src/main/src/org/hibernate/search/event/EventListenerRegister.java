@@ -16,17 +16,23 @@
 
 package org.hibernate.search.event;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.compass.gps.device.hibernate.embedded.CompassEventListener;
-import org.hibernate.event.EventListeners;
-import org.hibernate.event.PostCollectionRecreateEventListener;
-import org.hibernate.event.PostCollectionRemoveEventListener;
-import org.hibernate.event.PostCollectionUpdateEventListener;
-import org.hibernate.event.PostDeleteEventListener;
-import org.hibernate.event.PostInsertEventListener;
-import org.hibernate.event.PostUpdateEventListener;
+import org.hibernate.event.service.spi.EventListenerGroup;
+import org.hibernate.event.spi.PostCollectionRecreateEventListener;
+import org.hibernate.event.spi.PostCollectionRemoveEventListener;
+import org.hibernate.event.spi.PostCollectionUpdateEventListener;
+import org.hibernate.event.spi.PostDeleteEventListener;
+import org.hibernate.event.spi.PostInsertEventListener;
+import org.hibernate.event.spi.PostUpdateEventListener;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
 
 /**
  * Allows to hack automatic support for Compass in Hibernate when used with Hiberante annotations.
@@ -39,10 +45,10 @@ public class EventListenerRegister {
      * Add the FullTextIndexEventListener to all listeners, if enabled in configuration
      * and if not already registered.
      *
-     * @param listeners
+     * @param eventRegister
      * @param properties the Search configuration
      */
-    public static void enableHibernateSearch(EventListeners listeners, Properties properties) {
+    public static void enableHibernateSearch(EventListenerRegistry eventRegister, Properties properties) {
         boolean foundCompass = false;
         for (Map.Entry entry : properties.entrySet()) {
             String key = (String) entry.getKey();
@@ -59,53 +65,65 @@ public class EventListenerRegister {
         }
         final CompassEventListener searchListener = new CompassEventListener();
         // PostInsertEventListener
-        listeners.setPostInsertEventListeners(
-                addIfNeeded(
-                        listeners.getPostInsertEventListeners(),
-                        searchListener,
-                        new PostInsertEventListener[]{searchListener}
-                )
+        List<PostInsertEventListener> postInsertEventListeners = addIfNeeded(
+                eventRegister.getEventListenerGroup(EventType.POST_INSERT),
+                searchListener,
+                new PostInsertEventListener[]{searchListener}
+        );
+        eventRegister.setListeners(EventType.POST_INSERT,
+                postInsertEventListeners .toArray(new PostInsertEventListener[postInsertEventListeners .size()])
+
         );
         // PostUpdateEventListener
-        listeners.setPostUpdateEventListeners(
-                addIfNeeded(
-                        listeners.getPostUpdateEventListeners(),
-                        searchListener,
-                        new PostUpdateEventListener[]{searchListener}
-                )
+        List<PostUpdateEventListener> postUpdateEventListeners = addIfNeeded(
+                eventRegister.getEventListenerGroup(EventType.POST_UPDATE),
+                searchListener,
+                new PostUpdateEventListener[]{searchListener}
+        );
+        eventRegister.setListeners(EventType.POST_UPDATE,
+                postUpdateEventListeners .toArray(new PostUpdateEventListener[postUpdateEventListeners .size()])
+
         );
         // PostDeleteEventListener
-        listeners.setPostDeleteEventListeners(
-                addIfNeeded(
-                        listeners.getPostDeleteEventListeners(),
-                        searchListener,
-                        new PostDeleteEventListener[]{searchListener}
-                )
+        List<PostDeleteEventListener> postDeleteEventListeners = addIfNeeded(
+                eventRegister.getEventListenerGroup(EventType.POST_DELETE),
+                searchListener,
+                new PostDeleteEventListener[]{searchListener}
+        );
+        eventRegister.setListeners(EventType.POST_DELETE,
+                postDeleteEventListeners .toArray(new PostDeleteEventListener[postDeleteEventListeners .size()])
+
         );
 
         // PostCollectionRecreateEventListener
-        listeners.setPostCollectionRecreateEventListeners(
-                addIfNeeded(
-                        listeners.getPostCollectionRecreateEventListeners(),
-                        searchListener,
-                        new PostCollectionRecreateEventListener[]{searchListener}
-                )
+        List<PostCollectionRecreateEventListener> postCollectionRecreateEventListeners = addIfNeeded(
+                eventRegister.getEventListenerGroup(EventType.POST_COLLECTION_RECREATE),
+                searchListener,
+                new PostCollectionRecreateEventListener[]{searchListener}
+        );
+        eventRegister.setListeners(EventType.POST_COLLECTION_RECREATE,
+                postCollectionRecreateEventListeners.toArray(new PostCollectionRecreateEventListener[postCollectionRecreateEventListeners.size()])
+
         );
         // PostCollectionRemoveEventListener
-        listeners.setPostCollectionRemoveEventListeners(
-                addIfNeeded(
-                        listeners.getPostCollectionRemoveEventListeners(),
-                        searchListener,
-                        new PostCollectionRemoveEventListener[]{searchListener}
-                )
+        List<PostCollectionRemoveEventListener> postCollectionRemoveEventListeners = addIfNeeded(
+                eventRegister.getEventListenerGroup(EventType.POST_COLLECTION_REMOVE),
+                searchListener,
+                new PostCollectionRemoveEventListener[]{searchListener}
+        );
+        eventRegister.setListeners(EventType.POST_COLLECTION_REMOVE,
+                postCollectionRemoveEventListeners.toArray(new PostCollectionRemoveEventListener[postCollectionRemoveEventListeners.size()])
+
         );
         // PostCollectionUpdateEventListener
-        listeners.setPostCollectionUpdateEventListeners(
-                addIfNeeded(
-                        listeners.getPostCollectionUpdateEventListeners(),
-                        searchListener,
-                        new PostCollectionUpdateEventListener[]{searchListener}
-                )
+        List<PostCollectionUpdateEventListener> postCollectionUpdateEventListeners = addIfNeeded(
+                eventRegister.getEventListenerGroup(EventType.POST_COLLECTION_UPDATE),
+                searchListener,
+                new PostCollectionUpdateEventListener[]{searchListener}
+        );
+        eventRegister.setListeners(EventType.POST_COLLECTION_UPDATE,
+                postCollectionUpdateEventListeners.toArray(new PostCollectionUpdateEventListener[postCollectionUpdateEventListeners.size()])
+
         );
 
     }
@@ -120,13 +138,23 @@ public class EventListenerRegister {
      * @param toUseOnNull         this is returned if listeners==null
      * @return
      */
-    private static <T> T[] addIfNeeded(T[] listeners, T searchEventListener, T[] toUseOnNull) {
-        if (listeners == null) {
-            return toUseOnNull;
-        } else if (!isPresentInListeners(listeners)) {
-            return appendToArray(listeners, searchEventListener);
+    private static <T> List<T> addIfNeeded(EventListenerGroup<T> listeners, T searchEventListener, T[] toUseOnNull) {
+
+
+        if (listeners == null||listeners.isEmpty()) {
+            List<T> arrayUseOnNull = new ArrayList<T>();
+            return Arrays.asList(toUseOnNull);
+        }
+        List<T> listenersArray = new ArrayList<T>();
+        Iterator<T> iterator =listeners.listeners().iterator();
+        while(iterator.hasNext()){
+            listenersArray.add(iterator.next());
+        }
+
+        if (!isPresentInListeners(listenersArray)) {
+            return appendToArray(listenersArray, searchEventListener);
         } else {
-            return listeners;
+            return listenersArray;
         }
     }
 
@@ -139,14 +167,9 @@ public class EventListenerRegister {
      * @return A new array containing all listeners and newElement.
      */
     @SuppressWarnings("unchecked")
-    private static <T> T[] appendToArray(T[] listeners, T newElement) {
-        int length = listeners.length;
-        T[] ret = (T[]) java.lang.reflect.Array.newInstance(
-                listeners.getClass().getComponentType(), length + 1
-        );
-        System.arraycopy(listeners, 0, ret, 0, length);
-        ret[length] = newElement;
-        return ret;
+    private static <T> List<T> appendToArray(List<T> listeners, T newElement) {
+        listeners.add(newElement);
+        return listeners;
     }
 
     /**
@@ -156,7 +179,7 @@ public class EventListenerRegister {
      * @return true if it is contained in.
      */
     @SuppressWarnings("deprecation")
-    private static boolean isPresentInListeners(Object[] listeners) {
+    private static boolean isPresentInListeners(List listeners) {
         for (Object eventListener : listeners) {
             if (FullTextIndexEventListener.class == eventListener.getClass()) {
                 return true;

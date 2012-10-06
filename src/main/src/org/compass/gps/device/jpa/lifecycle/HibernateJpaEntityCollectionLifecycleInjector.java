@@ -18,20 +18,24 @@ package org.compass.gps.device.jpa.lifecycle;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import javax.persistence.EntityManagerFactory;
 
+import org.compass.gps.device.hibernate.lifecycle.HibernateCollectionEventListener;
 import org.compass.gps.device.jpa.JpaGpsDevice;
 import org.compass.gps.device.jpa.JpaGpsDeviceException;
 import org.hibernate.ejb.HibernateEntityManagerFactory;
 import org.hibernate.engine.spi.EntityEntry;
+import org.hibernate.event.service.spi.EventListenerGroup;
+import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.AbstractCollectionEvent;
-import org.hibernate.event.EventListeners;
-import org.hibernate.event.PostCollectionRecreateEvent;
-import org.hibernate.event.PostCollectionRecreateEventListener;
-import org.hibernate.event.PostCollectionRemoveEvent;
-import org.hibernate.event.PostCollectionRemoveEventListener;
-import org.hibernate.event.PostCollectionUpdateEvent;
-import org.hibernate.event.PostCollectionUpdateEventListener;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.event.spi.PostCollectionRecreateEvent;
+import org.hibernate.event.spi.PostCollectionRecreateEventListener;
+import org.hibernate.event.spi.PostCollectionRemoveEvent;
+import org.hibernate.event.spi.PostCollectionRemoveEventListener;
+import org.hibernate.event.spi.PostCollectionUpdateEvent;
+import org.hibernate.event.spi.PostCollectionUpdateEventListener;
 import org.hibernate.internal.SessionFactoryImpl;
 
 /**
@@ -106,30 +110,21 @@ public class HibernateJpaEntityCollectionLifecycleInjector extends HibernateJpaE
         HibernateEntityManagerFactory hibernateEntityManagerFactory =
                 (HibernateEntityManagerFactory) entityManagerFactory;
         SessionFactoryImpl sessionFactory = (SessionFactoryImpl) hibernateEntityManagerFactory.getSessionFactory();
-        EventListeners eventListeners = sessionFactory.getEventListeners();
+        EventListenerRegistry eventRegistry =
+                ((SessionFactoryImpl) sessionFactory).getServiceRegistry().getService(EventListenerRegistry.class);
 
         if (eventListener instanceof PostCollectionRecreateEventListener) {
-            PostCollectionRecreateEventListener[] listeners = eventListeners.getPostCollectionRecreateEventListeners();
-            PostCollectionRecreateEventListener[] tempListeners = new PostCollectionRecreateEventListener[listeners.length + 1];
-            System.arraycopy(listeners, 0, tempListeners, 0, listeners.length);
-            tempListeners[listeners.length] = (PostCollectionRecreateEventListener) eventListener;
-            eventListeners.setPostCollectionRecreateEventListeners(tempListeners);
+
+            eventRegistry.appendListeners(EventType.POST_COLLECTION_RECREATE, (PostCollectionRecreateEventListener)eventListener);
+
         }
 
         if (eventListener instanceof PostCollectionRemoveEventListener) {
-            PostCollectionRemoveEventListener[] listeners = eventListeners.getPostCollectionRemoveEventListeners();
-            PostCollectionRemoveEventListener[] tempListeners = new PostCollectionRemoveEventListener[listeners.length + 1];
-            System.arraycopy(listeners, 0, tempListeners, 0, listeners.length);
-            tempListeners[listeners.length] = (PostCollectionRemoveEventListener) eventListener;
-            eventListeners.setPostCollectionRemoveEventListeners(tempListeners);
+            eventRegistry.appendListeners(EventType.POST_COLLECTION_REMOVE, (PostCollectionRemoveEventListener) eventListener);
         }
 
         if (eventListener instanceof PostCollectionUpdateEventListener) {
-            PostCollectionUpdateEventListener[] listeners = eventListeners.getPostCollectionUpdateEventListeners();
-            PostCollectionUpdateEventListener[] tempListeners = new PostCollectionUpdateEventListener[listeners.length + 1];
-            System.arraycopy(listeners, 0, tempListeners, 0, listeners.length);
-            tempListeners[listeners.length] = (PostCollectionUpdateEventListener) eventListener;
-            eventListeners.setPostCollectionUpdateEventListeners(tempListeners);
+            eventRegistry.appendListeners(EventType.POST_COLLECTION_UPDATE, (PostCollectionUpdateEventListener) eventListener);
         }
     }
 
@@ -143,34 +138,41 @@ public class HibernateJpaEntityCollectionLifecycleInjector extends HibernateJpaE
         HibernateEntityManagerFactory hibernateEntityManagerFactory =
                 (HibernateEntityManagerFactory) entityManagerFactory;
         SessionFactoryImpl sessionFactory = (SessionFactoryImpl) hibernateEntityManagerFactory.getSessionFactory();
-        EventListeners eventListeners = sessionFactory.getEventListeners();
+        EventListenerRegistry eventRegistry =
+                ((SessionFactoryImpl) sessionFactory).getServiceRegistry().getService(EventListenerRegistry.class);
 
-        PostCollectionRecreateEventListener[] postCollectionRecreateEventListeners = eventListeners.getPostCollectionRecreateEventListeners();
+        EventListenerGroup<PostCollectionRecreateEventListener> postCollectionRecreateEventListeners = eventRegistry.getEventListenerGroup(EventType.POST_COLLECTION_RECREATE);
         ArrayList<PostCollectionRecreateEventListener> tempPostCollectionRecreateEventListeners = new ArrayList<PostCollectionRecreateEventListener>();
-        for (PostCollectionRecreateEventListener postCollectionRecreateEventListener : postCollectionRecreateEventListeners) {
-            if (!(postCollectionRecreateEventListener instanceof HibernateCollectionEventListener)) {
+        Iterator<PostCollectionRecreateEventListener> postCollectionRecreateEventListenerIterator= postCollectionRecreateEventListeners.listeners().iterator();
+        while(postCollectionRecreateEventListenerIterator.hasNext()){
+            PostCollectionRecreateEventListener postCollectionRecreateEventListener = postCollectionRecreateEventListenerIterator.next();
+            if (!(postCollectionRecreateEventListener instanceof org.compass.gps.device.hibernate.lifecycle.HibernateCollectionEventListener)) {
                 tempPostCollectionRecreateEventListeners.add(postCollectionRecreateEventListener);
             }
         }
-        eventListeners.setPostCollectionRecreateEventListeners(tempPostCollectionRecreateEventListeners.toArray(new PostCollectionRecreateEventListener[tempPostCollectionRecreateEventListeners.size()]));
+        eventRegistry.setListeners(EventType.POST_COLLECTION_RECREATE, tempPostCollectionRecreateEventListeners.toArray(new PostCollectionRecreateEventListener[tempPostCollectionRecreateEventListeners.size()]));
 
-        PostCollectionUpdateEventListener[] postCollectionUpdateEventListeners = eventListeners.getPostCollectionUpdateEventListeners();
+        EventListenerGroup<PostCollectionUpdateEventListener> postCollectionUpdateEventListeners = eventRegistry.getEventListenerGroup(EventType.POST_COLLECTION_UPDATE);
         ArrayList<PostCollectionUpdateEventListener> tempPostCollectionUpdateEventListeners = new ArrayList<PostCollectionUpdateEventListener>();
-        for (PostCollectionUpdateEventListener postCollectionUpdateEventListener : postCollectionUpdateEventListeners) {
-            if (!(postCollectionUpdateEventListener instanceof HibernateCollectionEventListener)) {
+        Iterator<PostCollectionUpdateEventListener> postCollectionUpdateEventListenerIterator = postCollectionUpdateEventListeners.listeners().iterator();
+        while(postCollectionUpdateEventListenerIterator.hasNext()){
+            PostCollectionUpdateEventListener postCollectionUpdateEventListener = postCollectionUpdateEventListenerIterator.next();
+            if(!(postCollectionUpdateEventListener instanceof org.compass.gps.device.hibernate.lifecycle.HibernateCollectionEventListener)){
                 tempPostCollectionUpdateEventListeners.add(postCollectionUpdateEventListener);
             }
         }
-        eventListeners.setPostCollectionUpdateEventListeners(tempPostCollectionUpdateEventListeners.toArray(new PostCollectionUpdateEventListener[tempPostCollectionUpdateEventListeners.size()]));
+        eventRegistry.setListeners(EventType.POST_COLLECTION_UPDATE, tempPostCollectionUpdateEventListeners.toArray(new PostCollectionUpdateEventListener[tempPostCollectionUpdateEventListeners.size()]));
 
-        PostCollectionRemoveEventListener[] postCollectionRemoveEventListeners = eventListeners.getPostCollectionRemoveEventListeners();
+        EventListenerGroup<PostCollectionRemoveEventListener> postCollectionRemoveEventListeners = eventRegistry.getEventListenerGroup(EventType.POST_COLLECTION_REMOVE);
         ArrayList<PostCollectionRemoveEventListener> tempPostCollectionRemoveEventListeners = new ArrayList<PostCollectionRemoveEventListener>();
-        for (PostCollectionRemoveEventListener postCollectionRemoveEventListener : postCollectionRemoveEventListeners) {
-            if (!(postCollectionRemoveEventListener instanceof HibernateCollectionEventListener)) {
+        Iterator<PostCollectionRemoveEventListener> postCollectionRemoveEventListenerIterator = postCollectionRemoveEventListeners.listeners().iterator();
+        while(postCollectionRemoveEventListenerIterator.hasNext()){
+            PostCollectionRemoveEventListener postCollectionRemoveEventListener = postCollectionRemoveEventListenerIterator.next();
+            if(!(postCollectionRemoveEventListener instanceof org.compass.gps.device.hibernate.lifecycle.HibernateCollectionEventListener)){
                 tempPostCollectionRemoveEventListeners.add(postCollectionRemoveEventListener);
             }
         }
-        eventListeners.setPostCollectionRemoveEventListeners(tempPostCollectionRemoveEventListeners.toArray(new PostCollectionRemoveEventListener[tempPostCollectionRemoveEventListeners.size()]));
+        eventRegistry.setListeners(EventType.POST_COLLECTION_REMOVE, tempPostCollectionRemoveEventListeners.toArray(new PostCollectionRemoveEventListener[tempPostCollectionRemoveEventListeners.size()]));
 
         eventListener = null;
     }

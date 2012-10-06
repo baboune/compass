@@ -18,7 +18,7 @@ package org.hibernate.cfg.search;
 
 import java.util.Properties;
 
-import org.hibernate.event.EventListeners;
+import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.search.event.EventListenerRegister;
 
 /**
@@ -28,7 +28,8 @@ import org.hibernate.search.event.EventListenerRegister;
  */
 public class HibernateSearchEventListenerRegister {
 
-    public static void enableHibernateSearch(EventListeners listeners, Properties properties) {
-        EventListenerRegister.enableHibernateSearch(listeners, properties);
+    public static void enableHibernateSearch(EventListenerRegistry eventListenerRegister, Properties properties) {
+        EventListenerRegister.enableHibernateSearch(eventListenerRegister, properties);
+
     }
 }
