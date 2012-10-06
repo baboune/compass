@@ -41,12 +41,12 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.event.PostDeleteEvent;
-import org.hibernate.event.PostDeleteEventListener;
-import org.hibernate.event.PostInsertEvent;
-import org.hibernate.event.PostInsertEventListener;
-import org.hibernate.event.PostUpdateEvent;
-import org.hibernate.event.PostUpdateEventListener;
+import org.hibernate.event.spi.PostDeleteEvent;
+import org.hibernate.event.spi.PostDeleteEventListener;
+import org.hibernate.event.spi.PostInsertEvent;
+import org.hibernate.event.spi.PostInsertEventListener;
+import org.hibernate.event.spi.PostUpdateEvent;
+import org.hibernate.event.spi.PostUpdateEventListener;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.AbstractEntityPersister;
@@ -67,9 +67,9 @@ import org.hibernate.persister.entity.AbstractEntityPersister;
  * @author kimchy
  * @deprecated Please use {@link org.compass.gps.device.hibernate.HibernateGpsDevice}.
  */
-public class Hibernate3GpsDevice extends AbstractHibernateGpsDevice implements PassiveMirrorGpsDevice {
+public class Hibernate4GpsDevice extends AbstractHibernateGpsDevice implements PassiveMirrorGpsDevice {
 
-    public class Hibernate3SessionWrapper implements HibernateSessionWrapper {
+    public class Hibernate4SessionWrapper implements HibernateSessionWrapper {
 
         private SessionFactory sessionFactory;
 
@@ -77,7 +77,7 @@ public class Hibernate3GpsDevice extends AbstractHibernateGpsDevice implements P
 
         private Transaction tr;
 
-        public Hibernate3SessionWrapper(SessionFactory sessionFactory) {
+        public Hibernate4SessionWrapper(SessionFactory sessionFactory) {
             this.sessionFactory = sessionFactory;
         }
 
@@ -314,16 +314,16 @@ public class Hibernate3GpsDevice extends AbstractHibernateGpsDevice implements P
 
     private boolean ignoreMirrorExceptions;
 
-    public Hibernate3GpsDevice() {
+    public Hibernate4GpsDevice() {
 
     }
 
-    public Hibernate3GpsDevice(String name, SessionFactory sessionFactory) {
+    public Hibernate4GpsDevice(String name, SessionFactory sessionFactory) {
         setName(name);
         this.sessionFactory = sessionFactory;
     }
 
-    public Hibernate3GpsDevice(String name, Configuration configuration) {
+    public Hibernate4GpsDevice(String name, Configuration configuration) {
         setName(name);
         this.configuration = configuration;
     }
@@ -417,48 +417,50 @@ public class Hibernate3GpsDevice extends AbstractHibernateGpsDevice implements P
     }
 
     protected HibernateSessionWrapper doGetHibernateSessionWrapper() {
-        return new Hibernate3SessionWrapper(sessionFactory);
+        return new Hibernate4SessionWrapper(sessionFactory);
     }
 
     protected HibernateEntityInfo[] doGetHibernateEntitiesInfo() throws HibernateGpsDeviceException {
         ArrayList infos = new ArrayList();
         try {
-            Map allClassMetaData = sessionFactory.getAllClassMetadata();
+            Map<String, ClassMetadata> allClassMetaData = sessionFactory.getAllClassMetadata();
             for (Iterator it = allClassMetaData.keySet().iterator(); it.hasNext();) {
-                String entityname = (String) it.next();
-                ClassMetadata classMetadata = (ClassMetadata) allClassMetaData.get(entityname);
+                String entityName = (String) it.next();
+                ClassMetadata classMetadata = allClassMetaData.get(entityName);
                 // if it is inherited, do not add it to the classes to index, since the "from [entity]"
                 // query for the base class will return results for this class as well
                 if (isInherited(classMetadata)) {
                     String superClassEntityName = ((AbstractEntityPersister) classMetadata).getMappedSuperclass();
-                    ClassMetadata superClassMetadata = (ClassMetadata) allClassMetaData.get(superClassEntityName);
-                    Class superClass = superClassMetadata.getMappedClass(EntityMode.POJO);
+                    ClassMetadata superClassMetadata = allClassMetaData.get(superClassEntityName);
+
+                    // baboune -> not sure? Can there be another mode?
+                    Class superClass = superClassMetadata.getMappedClass();
                     // only filter out classes that their super class has compass mappings
                     if (superClass != null && compassGps.hasMappingForEntityForIndex(superClass)) {
                         if (log.isDebugEnabled()) {
-                            log.debug(buildMessage("entity [" + entityname + "] is inherited and super class ["
+                            log.debug(buildMessage("entity [" + entityName + "] is inherited and super class ["
                                     + superClass + "] has compass mapping, filtering it out"));
                         }
                         continue;
                     }
                 }
-                if (isFilteredForIndex(entityname)) {
+                if (isFilteredForIndex(entityName)) {
                     if (log.isDebugEnabled()) {
-                        log.debug(buildMessage("entity [" + entityname + "] is marked to be filtered, filtering it out"));
+                        log.debug(buildMessage("entity [" + entityName + "] is marked to be filtered, filtering it out"));
                     }
                     continue;
                 }
-                if (compassGps.hasMappingForEntityForIndex((entityname))) {
-                    ResourceMapping resourceMapping = compassGps.getMappingForEntityForIndex(entityname);
-                    HibernateEntityInfo info = new HibernateEntityInfo(entityname, "from " + entityname,
+                if (compassGps.hasMappingForEntityForIndex((entityName))) {
+                    ResourceMapping resourceMapping = compassGps.getMappingForEntityForIndex(entityName);
+                    HibernateEntityInfo info = new HibernateEntityInfo(entityName, "from " + entityName,
                             resourceMapping.getSubIndexHash().getSubIndexes());
                     infos.add(info);
                     if (log.isDebugEnabled()) {
-                        log.debug(buildMessage("entity [" + entityname + "] will be indexed"));
+                        log.debug(buildMessage("entity [" + entityName + "] will be indexed"));
                     }
                 } else {
                     if (log.isDebugEnabled()) {
-                        log.debug(buildMessage("entity [" + entityname + "] does not have compass mapping, filtering it out"));
+                        log.debug(buildMessage("entity [" + entityName + "] does not have compass mapping, filtering it out"));
                     }
                 }
             }
@@ -472,7 +474,7 @@ public class Hibernate3GpsDevice extends AbstractHibernateGpsDevice implements P
     protected List doGetObjects(HibernateEntityInfo info, int from, int count, HibernateSessionWrapper sessionWrapper)
             throws HibernateGpsDeviceException {
         List values;
-        Session session = ((Hibernate3SessionWrapper) sessionWrapper).getSession();
+        Session session = ((Hibernate4SessionWrapper) sessionWrapper).getSession();
         try {
             Query query = doGetQuery(info, session).setFirstResult(from).setMaxResults(count);
             values = query.list();

@@ -22,7 +22,7 @@ import java.util.Date;
 import org.compass.core.CompassHits;
 import org.compass.core.CompassSession;
 import org.compass.core.CompassTransaction;
-import org.compass.gps.device.hibernate.dep.Hibernate3GpsDevice;
+import org.compass.gps.device.hibernate.dep.Hibernate4GpsDevice;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -32,7 +32,7 @@ import org.hibernate.cfg.Environment;
 /**
  * @author kimchy
  */
-public class Hibernate3GpsDeviceTests extends AbstractHibernateGpsDeviceTests {
+public class Hibernate4GpsDeviceTests extends AbstractHibernateGpsDeviceTests {
 
     private SessionFactory sessionFactory;
 
@@ -49,7 +49,7 @@ public class Hibernate3GpsDeviceTests extends AbstractHibernateGpsDeviceTests {
                 .setProperty(Environment.HBM2DDL_AUTO, "create");
         sessionFactory = conf.buildSessionFactory();
 
-        Hibernate3GpsDevice device = new Hibernate3GpsDevice();
+        Hibernate4GpsDevice device = new Hibernate4GpsDevice();
         device.setSessionFactory(sessionFactory);
         device.setName("hibernateDevice");
         compassGps.addGpsDevice(device);

@@ -21,22 +21,22 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
 import org.compass.gps.device.hibernate.HibernateGpsDeviceException;
-import org.compass.gps.device.hibernate.dep.Hibernate3GpsDevice;
+import org.compass.gps.device.hibernate.dep.Hibernate4GpsDevice;
 import org.hibernate.SessionFactory;
 
 /**
- * A special <code>Hibernate3GpsDevice</code> that handled cases when spring
+ * A special <code>Hibernate4GpsDevice</code> that handled cases when spring
  * proxies the <code>SessionFactory</code> (like when
  * <code>exposeTransactionAwareSessionFactory</code> is set to
  * <code>true</code>, which is the default from spring 1.2.X).
  * <p>
  * Use this hibernate gps device instead of
- * <code>org.compass.gps.device.hibernate.dep.Hibernate3GpsDevice</code> if you
+ * <code>org.compass.gps.device.hibernate.dep.Hibernate4GpsDevice</code> if you
  * are using Hibernate 3 and Spring.
  * 
  * @author kimchy
  */
-public class SpringHibernate3GpsDevice extends Hibernate3GpsDevice {
+public class SpringHibernate4GpsDevice extends Hibernate4GpsDevice {
 
     public static SessionFactory getNativeSessionFactory(SessionFactory sessionFactory) {
         if (Proxy.isProxyClass(sessionFactory.getClass())) {
