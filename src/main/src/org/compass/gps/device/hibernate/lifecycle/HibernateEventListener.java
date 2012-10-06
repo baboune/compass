@@ -32,15 +32,15 @@ import org.compass.core.mapping.Cascade;
 import org.compass.gps.device.hibernate.HibernateGpsDevice;
 import org.compass.gps.device.hibernate.HibernateGpsDeviceException;
 import org.compass.gps.spi.CompassGpsInterfaceDevice;
-import org.hibernate.engine.CollectionEntry;
-import org.hibernate.engine.SessionFactoryImplementor;
-import org.hibernate.event.EventSource;
-import org.hibernate.event.PostDeleteEvent;
-import org.hibernate.event.PostDeleteEventListener;
-import org.hibernate.event.PostInsertEvent;
-import org.hibernate.event.PostInsertEventListener;
-import org.hibernate.event.PostUpdateEvent;
-import org.hibernate.event.PostUpdateEventListener;
+import org.hibernate.engine.spi.CollectionEntry;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.event.spi.EventSource;
+import org.hibernate.event.spi.PostDeleteEvent;
+import org.hibernate.event.spi.PostDeleteEventListener;
+import org.hibernate.event.spi.PostInsertEvent;
+import org.hibernate.event.spi.PostInsertEventListener;
+import org.hibernate.event.spi.PostUpdateEvent;
+import org.hibernate.event.spi.PostUpdateEventListener;
 
 /**
  * A default implementation for Hibernate lifecycle callbacks.
@@ -198,7 +198,8 @@ public class HibernateEventListener implements PostInsertEventListener, PostUpda
     protected void doInsert(CompassSession session, PostInsertEvent postInsertEvent, Object entity, CompassGpsInterfaceDevice compassGps) {
         if (marshallIds) {
             Serializable id = postInsertEvent.getId();
-            postInsertEvent.getPersister().setIdentifier(entity, id, postInsertEvent.getSession().getEntityMode());
+            // postInsertEvent.getPersister().setIdentifier(entity, id, postInsertEvent.getSession().getEntityMode());
+            postInsertEvent.getPersister().setIdentifier(entity, id, postInsertEvent.getSession());
         }
         Collection<CollectionEntry> collectionsBefore = null;
         if (processCollections) {
