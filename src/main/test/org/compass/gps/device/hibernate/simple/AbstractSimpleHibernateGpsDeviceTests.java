@@ -50,7 +50,6 @@ public abstract class AbstractSimpleHibernateGpsDeviceTests extends AbstractHibe
         } catch (HibernateException e) {
             System.out.println(e.getMessage());
             System.out.println(e.getCause().getMessage());
-            System.out.println(e.getCause().getCause().getMessage());
             throw e;
         }
     }
