@@ -52,6 +52,7 @@ import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.mapping.Component;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
@@ -131,8 +132,7 @@ import org.hibernate.service.spi.SessionFactoryServiceRegistry;
  * @author kimchy
  */
 public class CompassEventListener implements PostDeleteEventListener, PostInsertEventListener, PostUpdateEventListener,
-        PostCollectionRecreateEventListener, PostCollectionRemoveEventListener, PostCollectionUpdateEventListener,
-        Integrator {
+        PostCollectionRecreateEventListener, PostCollectionRemoveEventListener, PostCollectionUpdateEventListener {
 
     public final static Log log = LogFactory.getLog(CompassEventListener.class);
 
@@ -152,25 +152,9 @@ public class CompassEventListener implements PostDeleteEventListener, PostInsert
 
     private boolean processCollections = true;
 
-    public void integrate(Configuration configuration, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry)  {
+    public CompassEventListener(Configuration configuration){
         compassHolder = getCompassHolder(configuration);
-        EventListenerRegistry listenerRegistry = serviceRegistry.getService( EventListenerRegistry.class );
-            listenerRegistry.appendListeners( EventType.POST_DELETE, this);
-            listenerRegistry.appendListeners( EventType.POST_INSERT, this );
-            listenerRegistry.appendListeners( EventType.POST_UPDATE, this );
-            listenerRegistry.appendListeners( EventType.POST_COLLECTION_RECREATE, this);
-            listenerRegistry.appendListeners( EventType.POST_COLLECTION_REMOVE, this);
-            listenerRegistry.appendListeners( EventType.POST_COLLECTION_UPDATE, this );
     }
-
-    public void integrate(MetadataImplementor metadata, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
-
-    }
-
-    public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
 
     public Compass getCompass() {
         return this.compassHolder.compass;
