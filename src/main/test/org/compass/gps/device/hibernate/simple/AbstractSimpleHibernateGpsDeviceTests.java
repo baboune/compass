@@ -21,6 +21,7 @@ import org.compass.core.CompassHits;
 import org.compass.core.CompassSession;
 import org.compass.core.CompassTransaction;
 import org.compass.core.config.CompassConfiguration;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -42,9 +43,16 @@ public abstract class AbstractSimpleHibernateGpsDeviceTests extends AbstractHibe
     }
 
     protected SessionFactory doSetUpSessionFactory() {
+        try {
         Configuration conf = new Configuration().configure(getHibernateCfgLocation())
                 .setProperty(Environment.HBM2DDL_AUTO, "create");
         return conf.buildSessionFactory();
+        } catch (HibernateException e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getCause().getMessage());
+            System.out.println(e.getCause().getCause().getMessage());
+            throw e;
+        }
     }
 
     protected void setUpDB(Session session) {
