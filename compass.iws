@@ -15,14 +15,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="75542933-1304-4a83-bd8b-a88bd599b057" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/compass.iml" afterPath="$PROJECT_DIR$/compass.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/compass.ipr" afterPath="$PROJECT_DIR$/compass.ipr" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/coherence/coherence.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/jboss/jboss-logging-3.1.0.GA.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/compass.iws" afterPath="$PROJECT_DIR$/compass.iws" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/velocity.log" afterPath="$PROJECT_DIR$/velocity.log" />
     </list>
     <ignored path="compass.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="75542933-1304-4a83-bd8b-a88bd599b057" time="1349607933851" ignored="false" />
+    <file path="/Dummy.txt" changelist="75542933-1304-4a83-bd8b-a88bd599b057" time="1349608021396" ignored="false" />
     <file path="/HibernateSimpleJpaGpsDeviceTests.java" changelist="75542933-1304-4a83-bd8b-a88bd599b057" time="1349606498906" ignored="false" />
     <file path="/AbstractCascadeManyTests.java" changelist="75542933-1304-4a83-bd8b-a88bd599b057" time="1349602537767" ignored="false" />
     <file path="/HibernateJpaEntityCollectionLifecycleInjector.java" changelist="75542933-1304-4a83-bd8b-a88bd599b057" time="1349544366088" ignored="false" />
@@ -304,6 +304,38 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="compass" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="compass" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="compass" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="compass" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="compass" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jboss" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -627,7 +659,11 @@
       <created>1349602709268</created>
       <updated>1349602709268</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Add coherence and jboss logging">
+      <created>1349608025097</created>
+      <updated>1349608025097</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -698,7 +734,7 @@
     <option name="SHOW_DIRTY_RECURSIVELY" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix abstractCascademanytest" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add coherence and jboss logging" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -715,6 +751,7 @@
     <MESSAGE value="fix Hibernate4GpsDevice" />
     <MESSAGE value="spi" />
     <MESSAGE value="fix abstractCascademanytest" />
+    <MESSAGE value="Add coherence and jboss logging" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
