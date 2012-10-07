@@ -50,6 +50,7 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.engine.spi.CollectionEntry;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
 import org.hibernate.mapping.Component;
 import org.hibernate.mapping.PersistentClass;
@@ -151,12 +152,19 @@ public class CompassEventListener implements PostDeleteEventListener, PostInsert
 
     private boolean processCollections = true;
 
-    public void integrate(Configuration cfg, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry)  {
-        compassHolder = getCompassHolder(cfg);
+    public void integrate(Configuration configuration, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry)  {
+        compassHolder = getCompassHolder(configuration);
+        EventListenerRegistry listenerRegistry = serviceRegistry.getService( EventListenerRegistry.class );
+            listenerRegistry.appendListeners( EventType.POST_DELETE, new CompassEventListener());
+            listenerRegistry.appendListeners( EventType.POST_INSERT, new CompassEventListener() );
+            listenerRegistry.appendListeners( EventType.POST_UPDATE, new CompassEventListener() );
+            listenerRegistry.appendListeners( EventType.POST_COLLECTION_RECREATE, new CompassEventListener());
+            listenerRegistry.appendListeners( EventType.POST_COLLECTION_REMOVE,new CompassEventListener());
+            listenerRegistry.appendListeners( EventType.POST_COLLECTION_UPDATE,new CompassEventListener() );
     }
 
     public void integrate(MetadataImplementor metadata, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
