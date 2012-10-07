@@ -293,6 +293,7 @@
                 <include name="**/*.xml"/>
                 <include name="**/*.jdo"/>
                 <include name="**/*.json"/>
+                <include name="**/*.Integrator"/>
             </fileset>
         </copy>
 

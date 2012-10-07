@@ -20,8 +20,10 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.Session;
-import org.hibernate.event.EventListeners;
-import org.hibernate.event.PostInsertEventListener;
+import org.hibernate.event.service.spi.EventListenerGroup;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.event.spi.PostInsertEventListener;
 import org.hibernate.internal.SessionFactoryImpl;
 
 /**
@@ -73,11 +75,11 @@ public abstract class AbstractCascadeOneTests extends TestCase {
         compassGps.start();
 
         SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
-        EventListeners eventListeners = sessionFactoryImpl.getEventListeners();
-        PostInsertEventListener[] listeners = eventListeners.getPostInsertEventListeners();
-        for (PostInsertEventListener listener : listeners) {
+        EventListenerRegistry eventListenerRegistry = sessionFactoryImpl.getServiceRegistry().getService(EventListenerRegistry.class);
+        EventListenerGroup<PostInsertEventListener> listeners = eventListenerRegistry.getEventListenerGroup(EventType.POST_INSERT);
+        for (PostInsertEventListener listener : listeners.listeners()) {
             if (listener instanceof HibernateEventListener) {
-                hibernateEventListener = (HibernateEventListener) listener;
+                hibernateEventListener = (HibernateEventListener) listeners;
                 break;
             }
         }

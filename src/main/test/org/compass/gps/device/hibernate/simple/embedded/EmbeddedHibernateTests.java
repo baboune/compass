@@ -13,7 +13,7 @@ import org.hibernate.Transaction;
  */
 public class EmbeddedHibernateTests extends ScrollableSimpleHibernateGpsDeviceTests {
 
-    protected String getHiberanteCfgLocation() {
+    protected String getHibernateCfgLocation() {
         return "/org/compass/gps/device/hibernate/simple/embedded/hibernate.cfg.xml";
     }
 

@@ -155,12 +155,12 @@ public class CompassEventListener implements PostDeleteEventListener, PostInsert
     public void integrate(Configuration configuration, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry)  {
         compassHolder = getCompassHolder(configuration);
         EventListenerRegistry listenerRegistry = serviceRegistry.getService( EventListenerRegistry.class );
-            listenerRegistry.appendListeners( EventType.POST_DELETE, new CompassEventListener());
-            listenerRegistry.appendListeners( EventType.POST_INSERT, new CompassEventListener() );
-            listenerRegistry.appendListeners( EventType.POST_UPDATE, new CompassEventListener() );
-            listenerRegistry.appendListeners( EventType.POST_COLLECTION_RECREATE, new CompassEventListener());
-            listenerRegistry.appendListeners( EventType.POST_COLLECTION_REMOVE,new CompassEventListener());
-            listenerRegistry.appendListeners( EventType.POST_COLLECTION_UPDATE,new CompassEventListener() );
+            listenerRegistry.appendListeners( EventType.POST_DELETE, this);
+            listenerRegistry.appendListeners( EventType.POST_INSERT, this );
+            listenerRegistry.appendListeners( EventType.POST_UPDATE, this );
+            listenerRegistry.appendListeners( EventType.POST_COLLECTION_RECREATE, this);
+            listenerRegistry.appendListeners( EventType.POST_COLLECTION_REMOVE, this);
+            listenerRegistry.appendListeners( EventType.POST_COLLECTION_UPDATE, this );
     }
 
     public void integrate(MetadataImplementor metadata, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
