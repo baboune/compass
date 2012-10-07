@@ -43,15 +43,9 @@ public abstract class AbstractSimpleHibernateGpsDeviceTests extends AbstractHibe
     }
 
     protected SessionFactory doSetUpSessionFactory() {
-        try {
         Configuration conf = new Configuration().configure(getHibernateCfgLocation())
                 .setProperty(Environment.HBM2DDL_AUTO, "create");
         return conf.buildSessionFactory();
-        } catch (HibernateException e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getCause().getMessage());
-            throw e;
-        }
     }
 
     protected void setUpDB(Session session) {
