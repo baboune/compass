@@ -37,12 +37,12 @@ public abstract class AbstractSimpleHibernateGpsDeviceTests extends AbstractHibe
         conf.addClass(Simple.class).addClass(SimpleBase.class).addClass(SimpleExtend.class);
     }
 
-    protected String getHiberanteCfgLocation() {
+    protected String getHibernateCfgLocation() {
         return "/org/compass/gps/device/hibernate/simple/hibernate.cfg.xml";
     }
 
     protected SessionFactory doSetUpSessionFactory() {
-        Configuration conf = new Configuration().configure(getHiberanteCfgLocation())
+        Configuration conf = new Configuration().configure(getHibernateCfgLocation())
                 .setProperty(Environment.HBM2DDL_AUTO, "create");
         return conf.buildSessionFactory();
     }
