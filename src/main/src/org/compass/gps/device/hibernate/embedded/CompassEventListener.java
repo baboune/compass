@@ -50,16 +50,15 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.engine.spi.CollectionEntry;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory;
+import org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
-import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.mapping.Component;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
 import org.hibernate.mapping.Value;
-import org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory;
-import org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory;
-import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.metamodel.source.MetadataImplementor;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 
@@ -132,7 +131,7 @@ import org.hibernate.service.spi.SessionFactoryServiceRegistry;
  * @author kimchy
  */
 public class CompassEventListener implements PostDeleteEventListener, PostInsertEventListener, PostUpdateEventListener,
-        PostCollectionRecreateEventListener, PostCollectionRemoveEventListener, PostCollectionUpdateEventListener {
+        PostCollectionRecreateEventListener, PostCollectionRemoveEventListener, PostCollectionUpdateEventListener, Integrator {
 
     public final static Log log = LogFactory.getLog(CompassEventListener.class);
 
@@ -152,8 +151,21 @@ public class CompassEventListener implements PostDeleteEventListener, PostInsert
 
     private boolean processCollections = true;
 
-    public CompassEventListener(Configuration configuration){
+    public void integrate(Configuration configuration, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
         compassHolder = getCompassHolder(configuration);
+        EventListenerRegistry listenerRegistry = serviceRegistry.getService(EventListenerRegistry.class);
+        listenerRegistry.appendListeners(EventType.POST_DELETE, this);
+        listenerRegistry.appendListeners(EventType.POST_INSERT, this);
+        listenerRegistry.appendListeners(EventType.POST_UPDATE, this);
+        listenerRegistry.appendListeners(EventType.POST_COLLECTION_RECREATE, this);
+        listenerRegistry.appendListeners(EventType.POST_COLLECTION_REMOVE, this);
+        listenerRegistry.appendListeners(EventType.POST_COLLECTION_UPDATE, this);
+    }
+
+    public void integrate(MetadataImplementor metadata, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
+    }
+
+    public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
     }
 
     public Compass getCompass() {
@@ -402,10 +414,10 @@ public class CompassEventListener implements PostDeleteEventListener, PostInsert
         }
 
         boolean atleastOneClassAdded = false;
-        for (Iterator it = cfg.getClassMappings(); it.hasNext();) {
+        for (Iterator it = cfg.getClassMappings(); it.hasNext(); ) {
             PersistentClass clazz = (PersistentClass) it.next();
             Class<?> mappedClass = clazz.getMappedClass();
-            for (Iterator propIt = clazz.getPropertyIterator(); propIt.hasNext();) {
+            for (Iterator propIt = clazz.getPropertyIterator(); propIt.hasNext(); ) {
                 Property prop = (Property) propIt.next();
                 Value value = prop.getValue();
                 if (value instanceof Component) {
